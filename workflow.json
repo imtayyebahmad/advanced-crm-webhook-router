@@ -1,0 +1,108 @@
+{
+  "name": "Advanced Webhook Router & CRM State Machine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crm-state-route",
+        "options": {}
+      },
+      "id": "core-webhook",
+      "name": "Core Webhook Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.body.event_type }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "lead_created"
+            },
+            {
+              "value2": "deal_updated",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      },
+      "id": "switch-router",
+      "name": "Dynamic State Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "notice": "Executing Lead Mapping into Centralized Data Layer."
+      },
+      "id": "airtable-sync",
+      "name": "Airtable Data Sync",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [680, 160]
+    },
+    {
+      "parameters": {
+        "notice": "Updating Pipeline Stages Inside GoHighLevel CRM Core."
+      },
+      "id": "ghl-sync",
+      "name": "GoHighLevel CRM Sync",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "notice": "Routing unclassified event types to backup logging systems."
+      },
+      "id": "log-sync",
+      "name": "System Fallback Logging",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [680, 440]
+    }
+  ],
+  "connections": {
+    "Core Webhook Receiver": {
+      "main": [
+        [
+          {
+            "node": "Dynamic State Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic State Switch": {
+      "main": [
+        [
+          {
+            "node": "Airtable Data Sync",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GoHighLevel CRM Sync",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "System Fallback Logging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
