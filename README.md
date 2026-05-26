@@ -1,4 +1,4 @@
-# advanced-crm-webhook-router
+![Workflow Architecture Diagram](crm-router-workflow.png)
 # Advanced Webhook Router & CRM State Machine
 
 ## 📌 Project Overview
